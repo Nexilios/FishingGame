@@ -72,12 +72,12 @@ void AFishingGamePlayerController::MoveForward(float Value)
 {
 	if (Value != 0.0f && !CheckIsFishing())
 	{
-		AFishingGameCharacter* const PlayerCharacter = Cast<AFishingGameCharacter>(GetCharacter());
+		AFishingGameCharacter* PlayerCharacter = Cast<AFishingGameCharacter>(GetCharacter());
 		if (PlayerCharacter)
 		{
 			if (IsFollowingAPath()) StopMovement();
 
-			USpringArmComponent* const CameraBoom = PlayerCharacter->GetCameraBoom();
+			USpringArmComponent* CameraBoom = PlayerCharacter->GetCameraBoom();
 			if (CameraBoom)
 			{
 				const FRotator Rotation = CameraBoom->GetRelativeRotation();
@@ -94,12 +94,12 @@ void AFishingGamePlayerController::MoveRight(float Value)
 {
 	if (Value != 0.0f && !CheckIsFishing())
 	{
-		AFishingGameCharacter* const PlayerCharacter = Cast<AFishingGameCharacter>(GetCharacter());
+		AFishingGameCharacter* PlayerCharacter = Cast<AFishingGameCharacter>(GetCharacter());
 		if (PlayerCharacter)
 		{
 			if (IsFollowingAPath()) StopMovement();
 
-			USpringArmComponent* const CameraBoom = PlayerCharacter->GetCameraBoom();
+			USpringArmComponent* CameraBoom = PlayerCharacter->GetCameraBoom();
 			if (CameraBoom)
 			{
 				const FRotator Rotation = CameraBoom->GetRelativeRotation();
@@ -127,9 +127,9 @@ void AFishingGamePlayerController::RotateCamera(float Value)
 {
 	if (Value != 0.0f)
 	{
-		AFishingGameCharacter* const PlayerCharacter = Cast<AFishingGameCharacter>(GetCharacter());
+		AFishingGameCharacter* PlayerCharacter = Cast<AFishingGameCharacter>(GetCharacter());
 		if (PlayerCharacter) {
-			USpringArmComponent* const CameraBoom = PlayerCharacter->GetCameraBoom();
+			USpringArmComponent* CameraBoom = PlayerCharacter->GetCameraBoom();
 			if (CameraBoom)
 			{
 				const float RotationSpeed = (Value * CameraRotateSpeed) * GetWorld()->GetDeltaSeconds();
@@ -145,9 +145,9 @@ void AFishingGamePlayerController::ZoomCamera(float Value)
 {
 	if (Value != 0)
 	{
-		AFishingGameCharacter* const PlayerCharacter = Cast<AFishingGameCharacter>(GetCharacter());
+		AFishingGameCharacter* PlayerCharacter = Cast<AFishingGameCharacter>(GetCharacter());
 		if (PlayerCharacter) {
-			USpringArmComponent* const CameraBoom = PlayerCharacter->GetCameraBoom();
+			USpringArmComponent* CameraBoom = PlayerCharacter->GetCameraBoom();
 			if (CameraBoom)
 			{
 				CameraBoom->TargetArmLength = FMath::Clamp(CameraBoom->TargetArmLength + (ZoomingSpeed * Value * GetWorld()->GetDeltaSeconds()), 300.f, 1500.f);
@@ -169,7 +169,7 @@ void AFishingGamePlayerController::ReadyThrowCast()
 		}
 		bReadyToFish = true;
 
-		AFishingGameCharacter* const PlayerCharacter = Cast<AFishingGameCharacter>(GetCharacter());
+		AFishingGameCharacter* PlayerCharacter = Cast<AFishingGameCharacter>(GetCharacter());
 		if (PlayerCharacter && PlayerCharacter->GetFishMesh() && PlayerCharacter->GetFishMesh()->IsVisible())
 		{
 			PlayerCharacter->GetFishMesh()->SetVisibility(false);

@@ -109,7 +109,7 @@ void AFishingGameCharacter::Tick(float DeltaSeconds)
 
 void AFishingGameCharacter::LaunchHook()
 {
-	AFishingGamePlayerController* const PController = Cast<AFishingGamePlayerController>(GetController());
+	AFishingGamePlayerController* PController = Cast<AFishingGamePlayerController>(GetController());
 	if (PController)
 	{
 		PController->RemoveCastingWidget();
@@ -156,7 +156,7 @@ void AFishingGameCharacter::ClearTimersAndVFX()
 
 void AFishingGameCharacter::StartFishing()
 {
-	AFishingGamePlayerController* const PController = Cast<AFishingGamePlayerController>(GetController());
+	AFishingGamePlayerController* PController = Cast<AFishingGamePlayerController>(GetController());
 	if (PController)
 	{
 		PController->SetCastingProgress(0.f);
@@ -175,7 +175,7 @@ void AFishingGameCharacter::StartFishing()
 
 void AFishingGameCharacter::FishBite()
 {
-	AFishingGamePlayerController* const PController = Cast<AFishingGamePlayerController>(GetController());
+	AFishingGamePlayerController* PController = Cast<AFishingGamePlayerController>(GetController());
 	if (PController)
 	{
 		if (PController->GetIsFishing())
