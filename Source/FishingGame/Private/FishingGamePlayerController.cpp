@@ -70,36 +70,44 @@ void AFishingGamePlayerController::SetupInputComponent()
 
 void AFishingGamePlayerController::MoveForward(float Value)
 {
-	if (Value != 0.0f && CheckIsFishing())
+	if (Value != 0.0f && !CheckIsFishing())
 	{
-		if (AFishingGameCharacter* PlayerCharacter = Cast<AFishingGameCharacter>(GetPawn()))
+		AFishingGameCharacter* const PlayerCharacter = Cast<AFishingGameCharacter>(GetCharacter());
+		if (PlayerCharacter)
 		{
 			if (IsFollowingAPath()) StopMovement();
 
 			USpringArmComponent* const CameraBoom = PlayerCharacter->GetCameraBoom();
-			const FRotator Rotation = CameraBoom->GetRelativeRotation();
-			const FRotator YawRotation(0, Rotation.Yaw, 0);
+			if (CameraBoom)
+			{
+				const FRotator Rotation = CameraBoom->GetRelativeRotation();
+				const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-			const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-			PlayerCharacter->AddMovementInput(Direction, Value);
+				const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+				PlayerCharacter->AddMovementInput(Direction, Value);
+			}
 		}
 	}
 }
 
 void AFishingGamePlayerController::MoveRight(float Value)
 {
-	if (Value != 0.0f && CheckIsFishing())
+	if (Value != 0.0f && !CheckIsFishing())
 	{
-		if (AFishingGameCharacter* PlayerCharacter = Cast<AFishingGameCharacter>(GetPawn()))
+		AFishingGameCharacter* const PlayerCharacter = Cast<AFishingGameCharacter>(GetCharacter());
+		if (PlayerCharacter)
 		{
 			if (IsFollowingAPath()) StopMovement();
 
 			USpringArmComponent* const CameraBoom = PlayerCharacter->GetCameraBoom();
-			const FRotator Rotation = CameraBoom->GetRelativeRotation();
-			const FRotator YawRotation(0, Rotation.Yaw, 0);
+			if (CameraBoom)
+			{
+				const FRotator Rotation = CameraBoom->GetRelativeRotation();
+				const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-			const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-			PlayerCharacter->AddMovementInput(Direction, Value);
+				const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+				PlayerCharacter->AddMovementInput(Direction, Value);
+			}
 		}
 	}
 }
@@ -119,12 +127,16 @@ void AFishingGamePlayerController::RotateCamera(float Value)
 {
 	if (Value != 0.0f)
 	{
-		if (AFishingGameCharacter* const PlayerCharacter = Cast<AFishingGameCharacter>(GetPawn())) {
+		AFishingGameCharacter* const PlayerCharacter = Cast<AFishingGameCharacter>(GetCharacter());
+		if (PlayerCharacter) {
 			USpringArmComponent* const CameraBoom = PlayerCharacter->GetCameraBoom();
-			const float RotationSpeed = (Value * CameraRotateSpeed) * GetWorld()->GetDeltaSeconds();
-			const FRotator CurrentRotation = CameraBoom->GetRelativeRotation();
-			const FRotator YawRotation = FRotator(0, RotationSpeed, 0);
-			CameraBoom->SetRelativeRotation(CurrentRotation + YawRotation);
+			if (CameraBoom)
+			{
+				const float RotationSpeed = (Value * CameraRotateSpeed) * GetWorld()->GetDeltaSeconds();
+				const FRotator CurrentRotation = CameraBoom->GetRelativeRotation();
+				const FRotator YawRotation = FRotator(0, RotationSpeed, 0);
+				CameraBoom->SetRelativeRotation(CurrentRotation + YawRotation);
+			}
 		}
 	}
 }
@@ -133,9 +145,13 @@ void AFishingGamePlayerController::ZoomCamera(float Value)
 {
 	if (Value != 0)
 	{
-		if (AFishingGameCharacter* const PlayerCharacter = Cast<AFishingGameCharacter>(GetPawn())) {
+		AFishingGameCharacter* const PlayerCharacter = Cast<AFishingGameCharacter>(GetCharacter());
+		if (PlayerCharacter) {
 			USpringArmComponent* const CameraBoom = PlayerCharacter->GetCameraBoom();
-			CameraBoom->TargetArmLength = FMath::Clamp(CameraBoom->TargetArmLength + (ZoomingSpeed * Value * GetWorld()->GetDeltaSeconds()), 300.f, 1500.f);
+			if (CameraBoom)
+			{
+				CameraBoom->TargetArmLength = FMath::Clamp(CameraBoom->TargetArmLength + (ZoomingSpeed * Value * GetWorld()->GetDeltaSeconds()), 300.f, 1500.f);
+			}
 		}
 	}
 }
@@ -153,8 +169,8 @@ void AFishingGamePlayerController::ReadyThrowCast()
 		}
 		bReadyToFish = true;
 
-		AFishingGameCharacter* const PlayerCharacter = Cast<AFishingGameCharacter>(GetPawn());
-		if (PlayerCharacter && PlayerCharacter->GetFishMesh()->IsVisible())
+		AFishingGameCharacter* const PlayerCharacter = Cast<AFishingGameCharacter>(GetCharacter());
+		if (PlayerCharacter && PlayerCharacter->GetFishMesh() && PlayerCharacter->GetFishMesh()->IsVisible())
 		{
 			PlayerCharacter->GetFishMesh()->SetVisibility(false);
 		}
@@ -168,7 +184,7 @@ void AFishingGamePlayerController::ReadyThrowCast()
 
 void AFishingGamePlayerController::ThrowCast()
 {
-	if (!bFishing && bReadyToFish)
+	if (!bFishing && bReadyToFish && !bTransition)
 	{
 		bReadyToFish = false;
 		bTransition = true;
@@ -177,7 +193,7 @@ void AFishingGamePlayerController::ThrowCast()
 
 bool AFishingGamePlayerController::CheckIsFishing() const
 {
-	return (!bReadyToFish && !bFishing && !bTransition);
+	return (bReadyToFish || bFishing || bTransition);
 }
 
 void AFishingGamePlayerController::TogglePauseMenu()
@@ -211,7 +227,6 @@ void AFishingGamePlayerController::SetNewMoveDestination(const FVector DestLocat
 	{
 		float const Distance = FVector::Dist(DestLocation, PlayerPawn->GetActorLocation());
 
-		// We need to issue move command only if far enough in order for walk animation to play correctly
 		if ((Distance > 120.0f))
 		{
 			UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, DestLocation);
@@ -221,8 +236,7 @@ void AFishingGamePlayerController::SetNewMoveDestination(const FVector DestLocat
 
 void AFishingGamePlayerController::OnSetDestinationPressed()
 {
-	// set flag to keep updating destination until released
-	if (CheckIsFishing())
+	if (!CheckIsFishing())
 	{
 		bMoveToMouseCursor = true;
 	}
@@ -230,6 +244,5 @@ void AFishingGamePlayerController::OnSetDestinationPressed()
 
 void AFishingGamePlayerController::OnSetDestinationReleased()
 {
-	// clear flag to indicate we should stop updating the destination
 	bMoveToMouseCursor = false;
 }

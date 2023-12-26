@@ -94,7 +94,8 @@ void AFishingGameCharacter::Tick(float DeltaSeconds)
 
 	if (CursorToWorld != nullptr)
 	{
-		if (APlayerController* const PC = Cast<APlayerController>(GetController()))
+		APlayerController* const PC = Cast<APlayerController>(GetController());
+		if (PC)
 		{
 			FHitResult TraceHitResult;
 			PC->GetHitResultUnderCursor(ECC_Visibility, true, TraceHitResult);
@@ -108,14 +109,15 @@ void AFishingGameCharacter::Tick(float DeltaSeconds)
 
 void AFishingGameCharacter::LaunchHook()
 {
-	if (AFishingGamePlayerController* const PC = Cast<AFishingGamePlayerController>(GetController()))
+	AFishingGamePlayerController* const PController = Cast<AFishingGamePlayerController>(GetController());
+	if (PController)
 	{
-		PC->RemoveCastingWidget();
+		PController->RemoveCastingWidget();
 
 		FRotator LaunchDirection = GetActorRotation();
 		LaunchDirection.Pitch += PitchAngle;
 		// Set Launch Velocity with a minimum strength of 300.f
-		FVector LaunchVelocity = LaunchDirection.Vector() * FMath::Max(300.f, LaunchStrength * PC->GetCastingProgress());
+		FVector LaunchVelocity = LaunchDirection.Vector() * FMath::Max(300.f, LaunchStrength * PController->GetCastingProgress());
 
 		Hook->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
 		Hook->SetSimulatePhysics(true);
@@ -154,14 +156,15 @@ void AFishingGameCharacter::ClearTimersAndVFX()
 
 void AFishingGameCharacter::StartFishing()
 {
-	if (AFishingGamePlayerController* const PC = Cast<AFishingGamePlayerController>(GetController()))
+	AFishingGamePlayerController* const PController = Cast<AFishingGamePlayerController>(GetController());
+	if (PController)
 	{
-		PC->SetCastingProgress(0.f);
-		if (!bFishBiting && PC->GetIsFishing())
+		PController->SetCastingProgress(0.f);
+		if (!bFishBiting && PController->GetIsFishing())
 		{
 			GetWorldTimerManager().SetTimer(FishBiteTimerHandle, this, &AFishingGameCharacter::FishBite, FishingWaitTime, false);
 		}
-		else if(bFishBiting && PC->GetIsFishing() && !PC->GetInTransition())
+		else if(bFishBiting && PController->GetIsFishing() && !PController->GetInTransition())
 		{
 			FishBiteFXComp->Deactivate();
 			bFishBiting = false;
@@ -172,9 +175,10 @@ void AFishingGameCharacter::StartFishing()
 
 void AFishingGameCharacter::FishBite()
 {
-	if (AFishingGamePlayerController* const PC = Cast<AFishingGamePlayerController>(GetController()))
+	AFishingGamePlayerController* const PController = Cast<AFishingGamePlayerController>(GetController());
+	if (PController)
 	{
-		if (PC->GetIsFishing())
+		if (PController->GetIsFishing())
 		{
 			bFishBiting = true;
 			FishBiteFXComp->Activate(true);
